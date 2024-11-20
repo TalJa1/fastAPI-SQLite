@@ -1,9 +1,8 @@
+from typing import Optional
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-
-Base = declarative_base()
+from pydantic import BaseModel, EmailStr, ConfigDict
+from database import Base
 
 
 # SQLAlchemy model
@@ -20,8 +19,10 @@ class Customer(Base):
     country = Column(String(50))
 
 
-# Pydantic schemas
+# Pydantic base model with shared configuration
 class CustomerBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     first_name: str
     last_name: str
     email: str
@@ -31,10 +32,8 @@ class CustomerBase(BaseModel):
     country: Optional[str] = None
 
 
-class CustomerCreate(BaseModel):
-    first_name: str
-    last_name: str
-    email: EmailStr  # Ensure this uses EmailStr for validation
+class CustomerCreate(CustomerBase):
+    email: EmailStr
     phone: str
     address: str
     city: str
@@ -44,26 +43,15 @@ class CustomerCreate(BaseModel):
 class CustomerRead(CustomerBase):
     customer_id: int
 
-    class Config:
-        orm_mode = True
-        from_attributes = True
 
-
-class CustomerRemove(CustomerBase):
+class CustomerRemove(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     customer_id: int
-
-    class Config:
-        from_attributes = True
 
 
 class CustomerUpdate(CustomerBase):
-    first_name: str
-    last_name: str
-    email: EmailStr  # Ensure this uses EmailStr for validation
+    email: EmailStr
     phone: str
     address: str
     city: str
     country: str
-
-    class Config:
-        from_attributes = True

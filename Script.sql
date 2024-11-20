@@ -1,86 +1,86 @@
 -- 1. Customers Table
 CREATE TABLE Customers (
-    customer_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    phone VARCHAR(15),
+    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT,
     address TEXT,
-    city VARCHAR(50),
-    country VARCHAR(50)
+    city TEXT,
+    country TEXT
 );
 
 -- 2. Products Table
 CREATE TABLE Products (
-    product_id SERIAL PRIMARY KEY,
-    product_name VARCHAR(100) NOT NULL,
-    category_id INT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    stock_quantity INT NOT NULL,
-    supplier_id INT,
+    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_name TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
+    price REAL NOT NULL,
+    stock_quantity INTEGER NOT NULL,
+    supplier_id INTEGER,
     FOREIGN KEY (category_id) REFERENCES Categories (category_id),
     FOREIGN KEY (supplier_id) REFERENCES Suppliers (supplier_id)
 );
 
 -- 3. Categories Table
 CREATE TABLE Categories (
-    category_id SERIAL PRIMARY KEY,
-    category_name VARCHAR(100) NOT NULL UNIQUE,
+    category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_name TEXT NOT NULL UNIQUE,
     description TEXT
 );
 
 -- 4. Orders Table
 CREATE TABLE Orders (
-    order_id SERIAL PRIMARY KEY,
-    customer_id INT NOT NULL,
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'Pending',
-    employee_id INT,
-    total_amount DECIMAL(10, 2),
+    status TEXT DEFAULT 'Pending',
+    employee_id INTEGER,
+    total_amount REAL,
     FOREIGN KEY (customer_id) REFERENCES Customers (customer_id),
     FOREIGN KEY (employee_id) REFERENCES Employees (employee_id)
 );
 
 -- 5. OrderItems Table (Many-to-Many between Orders and Products)
 CREATE TABLE OrderItems (
-    order_item_id SERIAL PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    price_per_unit DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES Orders (order_id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES Products (product_id) ON DELETE CASCADE
+    order_item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    price_per_unit REAL NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders (order_id),
+    FOREIGN KEY (product_id) REFERENCES Products (product_id)
 );
 
 -- 6. Employees Table
 CREATE TABLE Employees (
-    employee_id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    position VARCHAR(50),
+    employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    position TEXT,
     hire_date DATE,
-    salary DECIMAL(10, 2)
+    salary REAL
 );
 
 -- 7. Suppliers Table
 CREATE TABLE Suppliers (
-    supplier_id SERIAL PRIMARY KEY,
-    supplier_name VARCHAR(100) NOT NULL,
-    contact_name VARCHAR(50),
-    phone VARCHAR(15),
+    supplier_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_name TEXT NOT NULL,
+    contact_name TEXT,
+    phone TEXT,
     address TEXT,
-    city VARCHAR(50),
-    country VARCHAR(50)
+    city TEXT,
+    country TEXT
 );
 
 -- 8. Payments Table
 CREATE TABLE Payments (
-    payment_id SERIAL PRIMARY KEY,
-    order_id INT NOT NULL,
+    payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    amount DECIMAL(10, 2) NOT NULL,
-    payment_method VARCHAR(20),
-    FOREIGN KEY (order_id) REFERENCES Orders (order_id) ON DELETE CASCADE
+    amount REAL NOT NULL,
+    payment_method TEXT,
+    FOREIGN KEY (order_id) REFERENCES Orders (order_id)
 );
 
 -- Insert Sample Data into Categories
@@ -128,4 +128,5 @@ INSERT INTO OrderItems (order_id, product_id, quantity, price_per_unit) VALUES
 INSERT INTO Payments (order_id, payment_date, amount, payment_method) VALUES
 (1, '2024-10-01 10:35:00', 719.98, 'Credit Card');
 
+-- Verify Customers
 SELECT * FROM Customers;

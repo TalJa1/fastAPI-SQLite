@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, ValidationError
 from database import Base
 
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from routes import customerRoute
 
 app = FastAPI(
-    title="FastAPI Shop Management",
+    title="FastAPI with SQLite",
     description="This is a very fancy project, with auto docs for the API",
     version="0.1.0",
 )

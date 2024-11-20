@@ -3,7 +3,8 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from routes import customerRoute
+
+# from routes import customerRoute
 
 app = FastAPI(
     title="FastAPI with SQLite",
@@ -29,4 +30,4 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
-app.include_router(customerRoute.router, prefix="/api/v1", tags=["Customers"])
+# app.include_router(customerRoute.router, prefix="/api/v1", tags=["Customers"])

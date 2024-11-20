@@ -1,8 +1,11 @@
-from typing import List, Literal
-from uuid import uuid4
-from fastapi import FastAPI
+from typing import Literal
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from database import get_db, engine, Base
+from models.Customer import Customer
+from sqlalchemy.orm import Session
+from routes import CustomerRoute
 
 # from routes import customerRoute
 
@@ -11,7 +14,18 @@ app = FastAPI(
     description="This is a very fancy project, with auto docs for the API",
     version="0.1.0",
 )
-# handler = Mangum(app)  # for AWS Lambda
+
+
+# Create the tables
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+# Call the function during application startup
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
 
 
 app.add_middleware(
@@ -30,4 +44,4 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
-# app.include_router(customerRoute.router, prefix="/api/v1", tags=["Customers"])
+app.include_router(CustomerRoute.router, prefix="/api/v1", tags=["Customers"])

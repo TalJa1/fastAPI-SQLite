@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from database import get_db, engine, Base
 from models.Customer import Customer
 from sqlalchemy.orm import Session
-from routes import CustomerRoute
+from routes import CustomerRoute, EmployeeRoute
 
 # from routes import customerRoute
 
@@ -45,3 +45,4 @@ class FilterParams(BaseModel):
 
 
 app.include_router(CustomerRoute.router, prefix="/api/v1", tags=["Customers"])
+app.include_router(EmployeeRoute.router, prefix="/api/v1", tags=["Employees"])

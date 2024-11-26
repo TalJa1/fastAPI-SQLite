@@ -28,7 +28,7 @@ class CategoryCreate(CategoryBase):
 
 
 class CategoryRead(CategoryBase):
-    category_id: int
+    pass
 
 
 class CategoryUpdate(CategoryBase):

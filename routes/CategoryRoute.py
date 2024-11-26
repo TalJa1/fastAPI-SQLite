@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models.Category import (
     Category as CategoryModel,
+    CategoryCreate,
     CategoryListResponse,
     CategoryRead,
 )
@@ -12,7 +13,7 @@ router = APIRouter()
 
 
 # routes/CategoryRoute.py
-@router.get("/categories/", response_model=list[CategoryListResponse], status_code=200)
+@router.get("/categories/", response_model=list[CategoryRead], status_code=200)
 async def get_categories(db: AsyncSession = Depends(get_db)):
     try:
         query = select(CategoryModel)
@@ -23,12 +24,14 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
             return []
 
         # Convert to dict and exclude ID
-        return [
-            CategoryListResponse(
-                category_name=category.category_name, description=category.description
-            )
-            for category in categories
-        ]
+        # return [
+        #     CategoryListResponse(
+        #         category_name=category.category_name, description=category.description
+        #     )
+        #     for category in categories
+        # ]
+
+        return [CategoryRead.model_validate(category) for category in categories]
     except Exception as e:
         print(f"Error retrieving categories: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving categories.")
@@ -51,7 +54,7 @@ async def get_category(category_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/categories/", response_model=CategoryRead, status_code=201)
-async def create_category(category: CategoryRead, db: AsyncSession = Depends(get_db)):
+async def create_category(category: CategoryCreate, db: AsyncSession = Depends(get_db)):
     try:
         # Check if category already exists
         result = await db.execute(
@@ -122,3 +125,51 @@ async def update_category(
     except Exception as e:
         print(f"Error updating category: {e}")
         raise HTTPException(status_code=500, detail="Error updating category.")
+
+
+@router.delete("/categories/{category_id}", response_model={}, status_code=200)
+async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        # Check if category exists
+        query = select(CategoryModel).filter(CategoryModel.category_id == category_id)
+        result = await db.execute(query)
+        existing_category = result.scalars().first()
+
+        if not existing_category:
+            raise HTTPException(status_code=404, detail="Category not found.")
+
+        # Delete with proper async session management
+        await db.delete(existing_category)
+
+        # Commit the transaction
+        try:
+            await db.commit()
+        except Exception as commit_error:
+            await db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to commit delete operation: {str(commit_error)}",
+            )
+
+        # Verify deletion
+        verify_query = select(CategoryModel).filter(
+            CategoryModel.category_id == category_id
+        )
+        verify_result = await db.execute(verify_query)
+        if verify_result.scalars().first():
+            await db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to delete category - still exists after deletion",
+            )
+
+        return {"message": "Category deleted successfully", "category_id": category_id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        print(f"Error deleting category: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error deleting category: {str(e)}"
+        )

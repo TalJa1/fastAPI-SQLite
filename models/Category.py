@@ -38,7 +38,9 @@ class CategoryUpdate(CategoryBase):
 
 
 class CategoryDelete(CategoryBase):
-    pass
+    message: str
+    category_id: int
+    status: str = "success"
 
 
 class CategoryListResponse(CategoryBase):

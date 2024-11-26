@@ -2,15 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
-from models.Category import Category as CategoryModel, CategoryRead
+from models.Category import (
+    Category as CategoryModel,
+    CategoryListResponse,
+    CategoryRead,
+)
 
 router = APIRouter()
 
 
-@router.get("/categories/", response_model=list[CategoryRead], status_code=200)
+# routes/CategoryRoute.py
+@router.get("/categories/", response_model=list[CategoryListResponse], status_code=200)
 async def get_categories(db: AsyncSession = Depends(get_db)):
     try:
-        # Fix: Use CategoryModel in select statement
         query = select(CategoryModel)
         result = await db.execute(query)
         categories = result.scalars().all()
@@ -18,8 +22,13 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
         if not categories:
             return []
 
-        # Convert to Pydantic models
-        return [CategoryRead.model_validate(category) for category in categories]
+        # Convert to dict and exclude ID
+        return [
+            CategoryListResponse(
+                category_name=category.category_name, description=category.description
+            )
+            for category in categories
+        ]
     except Exception as e:
         print(f"Error retrieving categories: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving categories.")
@@ -70,3 +79,46 @@ async def create_category(category: CategoryRead, db: AsyncSession = Depends(get
     except Exception as e:
         print(f"Error creating category: {e}")
         raise HTTPException(status_code=500, detail="Error creating category.")
+
+
+@router.put("/categories/{category_id}", response_model=CategoryRead, status_code=200)
+async def update_category(
+    category_id: int, category: CategoryRead, db: AsyncSession = Depends(get_db)
+):
+    try:
+        # Check if category exists
+        query = select(CategoryModel).filter(CategoryModel.category_id == category_id)
+        result = await db.execute(query)
+        existing_category = result.scalars().first()
+
+        if not existing_category:
+            raise HTTPException(status_code=404, detail="Category not found.")
+
+        # Check if new category name already exists (excluding current category)
+        name_check = await db.execute(
+            select(CategoryModel).filter(
+                CategoryModel.category_name == category.category_name,
+                CategoryModel.category_id != category_id,
+            )
+        )
+        duplicate_name = name_check.scalars().first()
+
+        if duplicate_name:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Category with name '{category.category_name}' already exists",
+            )
+
+        # Update category
+        for key, value in category.model_dump(exclude_unset=True).items():
+            setattr(existing_category, key, value)
+
+        await db.commit()
+        await db.refresh(existing_category)
+
+        return CategoryRead.model_validate(existing_category)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating category: {e}")
+        raise HTTPException(status_code=500, detail="Error updating category.")

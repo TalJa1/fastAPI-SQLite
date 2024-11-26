@@ -23,13 +23,23 @@ class CategoryBase(BaseModel):
     description: Optional[str] = None
 
 
+class CategoryRead(CategoryBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    category_id: int
+
+
 class CategoryCreate(CategoryBase):
     pass
 
 
-class CategoryRead(CategoryBase):
+class CategoryUpdate(CategoryBase):
     pass
 
 
-class CategoryUpdate(CategoryBase):
+class CategoryDelete(CategoryBase):
+    pass
+
+
+class CategoryListResponse(CategoryBase):
     pass

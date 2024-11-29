@@ -12,7 +12,7 @@ from models.Customer import (
 router = APIRouter()
 
 
-@router.get("/customers/", response_model=list[CustomerRead], status_code=200)
+@router.get("/customers/", response_model={}, status_code=200)
 async def get_customers(db: AsyncSession = Depends(get_db)):
     try:
         # Query database
@@ -23,7 +23,10 @@ async def get_customers(db: AsyncSession = Depends(get_db)):
             return []
 
         # Convert to Pydantic models
-        return [CustomerRead.model_validate(customer) for customer in customers]
+        return {
+            "message": "Customers retrieved successfully",
+            "data": [CustomerRead.model_validate(customer) for customer in customers],
+        }
     except Exception as e:
         # Log the error and re-raise as HTTPException
         print(f"Error retrieving customers: {e}")

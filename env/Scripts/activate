@@ -39,10 +39,10 @@ deactivate nondestructive
 if [ "${OSTYPE:-}" = "cygwin" ] || [ "${OSTYPE:-}" = "msys" ] ; then
     # transform D:\path\to\venv to /d/path/to/venv on MSYS
     # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath "C:\zTalJaz\Storage\code\fastAPI-SQLite\env")
+    export VIRTUAL_ENV=$(cygpath "C:\ZTalJaZ\AS\Projects\fastAPI-SQLite\env")
 else
     # use the path as-is
-    export VIRTUAL_ENV="C:\zTalJaz\Storage\code\fastAPI-SQLite\env"
+    export VIRTUAL_ENV="C:\ZTalJaZ\AS\Projects\fastAPI-SQLite\env"
 fi
 
 _OLD_VIRTUAL_PATH="$PATH"

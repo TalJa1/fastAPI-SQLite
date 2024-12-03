@@ -12,11 +12,18 @@ from models.Customer import (
 router = APIRouter()
 
 
+from fastapi import Query
+
+
 @router.get("/customers/", response_model={}, status_code=200)
-async def get_customers(db: AsyncSession = Depends(get_db)):
+async def get_customers(
+    db: AsyncSession = Depends(get_db),
+    limit: int = Query(10, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
     try:
-        # Query database
-        result = await db.execute(select(CustomerModel))
+        # Query database with pagination
+        result = await db.execute(select(CustomerModel).offset(offset).limit(limit))
         customers = result.scalars().all()
 
         if not customers:
@@ -26,6 +33,9 @@ async def get_customers(db: AsyncSession = Depends(get_db)):
         return {
             "message": "Customers retrieved successfully",
             "data": [CustomerRead.model_validate(customer) for customer in customers],
+            "limit": limit,
+            "offset": offset,
+            "total": len(customers),
         }
     except Exception as e:
         # Log the error and re-raise as HTTPException

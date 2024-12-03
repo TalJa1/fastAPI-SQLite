@@ -19,7 +19,7 @@ from fastapi import Query
 async def get_customers(
     db: AsyncSession = Depends(get_db),
     limit: int = Query(10, ge=1, le=100),
-    offset: int = Query(0, ge=0),
+    offset: int = Query(0, ge=0),  # Offset should be (pagenumber - 1 ) * limit
 ):
     try:
         # Query database with pagination

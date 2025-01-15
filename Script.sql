@@ -130,3 +130,16 @@ INSERT INTO Payments (order_id, payment_date, amount, payment_method) VALUES
 
 -- Verify Customers
 SELECT * FROM Customers;
+
+-- Delete existing data from all tables
+DELETE FROM OrderItems;
+DELETE FROM Orders;
+DELETE FROM Payments;
+DELETE FROM Employees;
+DELETE FROM Customers;
+DELETE FROM Products;
+DELETE FROM Categories;
+DELETE FROM Suppliers;
+
+-- Reset the auto-increment counters (if applicable)
+DELETE FROM sqlite_sequence WHERE name IN ('OrderItems', 'Orders', 'Payments', 'Employees', 'Customers', 'Products', 'Categories', 'Suppliers');

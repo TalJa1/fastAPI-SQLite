@@ -1,11 +1,13 @@
 from typing import Literal
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from database import get_db, engine, Base
-from models.Customer import Customer
-from sqlalchemy.orm import Session
+from database import engine, Base
 from routes import CategoryRoute, CustomerRoute, EmployeeRoute
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # from routes import customerRoute
 

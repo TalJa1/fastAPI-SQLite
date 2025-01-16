@@ -1,15 +1,15 @@
+import os
 from typing import Literal
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from database import engine, Base
+from database import get_db, Base, engine
 from routes import CategoryRoute, CustomerRoute, EmployeeRoute
 import logging
 
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# from routes import customerRoute
 
 app = FastAPI(
     title="FastAPI with SQLite",

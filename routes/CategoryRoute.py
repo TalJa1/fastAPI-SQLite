@@ -8,6 +8,10 @@ from models.Category import (
     CategoryListResponse,
     CategoryRead,
 )
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -63,24 +67,16 @@ async def create_category(category: CategoryCreate, db: AsyncSession = Depends(g
             )
         )
         existing_category = result.scalars().first()
-
         if existing_category:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Category with name '{category.category_name}' already exists",
-            )
+            raise HTTPException(status_code=400, detail="Category already exists.")
 
-        # Create new category
-        new_category = CategoryModel(**category.model_dump())
+        new_category = CategoryModel(**category.dict())
         db.add(new_category)
         await db.commit()
         await db.refresh(new_category)
-
         return CategoryRead.model_validate(new_category)
-    except HTTPException:
-        raise
     except Exception as e:
-        print(f"Error creating category: {e}")
+        logger.error(f"Error creating category: {e}")
         raise HTTPException(status_code=500, detail="Error creating category.")
 
 

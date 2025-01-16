@@ -8,9 +8,10 @@ from models.Customer import (
     CustomerRead,
     CustomerUpdate,
 )
+import logging
 
 router = APIRouter()
-
+logger = logging.getLogger(__name__)
 
 from fastapi import Query
 
@@ -43,21 +44,17 @@ async def get_customers(
         raise HTTPException(status_code=500, detail="Error retrieving customers.")
 
 
-@router.post("/customers/", response_model=CustomerRead)
+@router.post("/customers/", response_model=CustomerRead, status_code=201)
 async def create_customer(customer: CustomerCreate, db: AsyncSession = Depends(get_db)):
-    # Check if the email already exists
-    result = await db.execute(
-        select(CustomerModel).filter(CustomerModel.email == customer.email)
-    )
-    existing_customer = result.scalars().first()
-    if existing_customer:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    db_customer = CustomerModel(**customer.model_dump())
-    db.add(db_customer)
-    await db.commit()
-    await db.refresh(db_customer)
-    return db_customer
+    try:
+        new_customer = CustomerModel(**customer.dict())
+        db.add(new_customer)
+        await db.commit()
+        await db.refresh(new_customer)
+        return CustomerRead.model_validate(new_customer)
+    except Exception as e:
+        logger.error(f"Error creating customer: {e}")
+        raise HTTPException(status_code=500, detail="Error creating customer.")
 
 
 # Remove customer

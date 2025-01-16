@@ -1,7 +1,12 @@
 import os
+import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load the database URL from environment variables
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./touch.db")
@@ -17,4 +22,10 @@ Base = declarative_base()
 # Dependency to get the database session
 async def get_db():
     async with SessionLocal() as session:
-        yield session
+        try:
+            yield session
+        except Exception as e:
+            logger.error(f"Database session error: {e}")
+            raise
+        finally:
+            await session.close()

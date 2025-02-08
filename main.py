@@ -3,7 +3,7 @@ from typing import Literal
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from database import get_db, Base, engine
+from database import Base, engine
 from routes import CategoryRoute, CustomerRoute, EmployeeRoute
 import logging
 

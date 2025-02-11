@@ -7,7 +7,6 @@ from routes.CustomerRoute import create_customer
 
 
 @pytest.fixture(scope="session")
-@pytest.fixture()
 def client() -> Generator:
     with TestClient(app) as c:
         yield c
@@ -26,6 +25,6 @@ async def db() -> AsyncGenerator:
 
 
 @pytest.fixture()
-async def async_client(client) -> AsyncGenerator:
-    async with AsyncClient(app=app, base_url=client.base.url) as ac:
+async def async_client() -> AsyncGenerator:
+    async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac

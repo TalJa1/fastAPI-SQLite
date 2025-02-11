@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from database import Base, engine
 from routes import CategoryRoute, CustomerRoute, EmployeeRoute
 import logging
+from contextlib import asynccontextmanager
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -24,10 +25,15 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 
-# Call the function during application startup
-@app.on_event("startup")
-async def startup_event():
+# Lifespan event handler
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await init_db()
+    yield
+    # Add any cleanup code here if needed
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 app.add_middleware(

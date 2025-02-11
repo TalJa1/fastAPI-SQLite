@@ -12,18 +12,6 @@ def client() -> Generator:
         yield c
 
 
-@pytest.fixture(autouse=True)
-async def db() -> AsyncGenerator:
-    # Create a new customer
-    customer = {
-        "name": "John Doe",
-        "email": "",
-        "phone": "1234567890",
-    }
-    await create_customer(customer)
-    yield
-
-
 @pytest.fixture()
 async def async_client() -> AsyncGenerator:
     async with AsyncClient(app=app, base_url="http://test") as ac:

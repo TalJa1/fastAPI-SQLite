@@ -2,7 +2,7 @@ from datetime import date
 from typing import Optional
 from sqlalchemy import DECIMAL, Column, Date, Integer, String
 from sqlalchemy.orm import declarative_base
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 Base = declarative_base()
 
@@ -29,10 +29,7 @@ class EmployeeBase(BaseModel):
 class EmployeeRead(EmployeeBase):
     employee_id: int
 
-    class Config:
-        from_attributes = True
-        arbitrary_types_allowed = True
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class EmployeeCreate(EmployeeBase):

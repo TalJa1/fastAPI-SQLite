@@ -3,15 +3,6 @@ import pytest
 import pytest_asyncio
 
 
-@pytest.fixture
-async def create_customer(async_client: AsyncClient):
-    async def _create(body: dict):
-        response = await async_client.post("/customers/", json=body)
-        return response
-
-    return _create
-
-
 @pytest_asyncio.fixture
 async def test_create_customer(async_client: AsyncClient):
     body = {

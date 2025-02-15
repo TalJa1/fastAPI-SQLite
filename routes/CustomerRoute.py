@@ -31,13 +31,15 @@ async def get_customers(
             return []
 
         # Convert to Pydantic models
-        return {
+        response = {
             "message": "Customers retrieved successfully",
             "data": [CustomerRead.model_validate(customer) for customer in customers],
             "limit": limit,
             "offset": offset,
             "total": len(customers),
         }
+        logger.info(f"Fetched {len(customers)} customers")
+        return response
     except Exception as e:
         # Log the error and re-raise as HTTPException
         print(f"Error retrieving customers: {e}")

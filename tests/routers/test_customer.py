@@ -1,33 +1,12 @@
 from httpx import AsyncClient
 import pytest
-import pytest_asyncio
 
 
-@pytest_asyncio.fixture
-async def test_create_customer(async_client: AsyncClient):
-    body = {
-        "name": "John Doe",
-        "email": "",
-        "phone": "1234567890",
-    }
-    response = await async_client.post("/customers/", json={"body": body})
-    assert response.status_code == 201
+@pytest.mark.asyncio
+# get all customers
+async def test_get_customers(async_client: AsyncClient):
+    response = await async_client.get("/api/v1/customers")
+    assert response.status_code == 200
+    assert response.json() == {"customers": []}
 
-
-@pytest_asyncio.fixture
-async def test_create_customer_invalid(async_client: AsyncClient):
-    body = {
-        "name": "John Doe",
-        "email": "",
-    }
-    response = await async_client.post("/customers/", json={"body": body})
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "loc": ["body", "phone"],
-                "msg": "field required",
-                "type": "value_error.missing",
-            }
-        ]
-    }
+    return response.json()
